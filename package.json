@@ -27,5 +27,9 @@
         "passport": "^0.6.0",
         "passport-jwt": "^4.0.1",
         "passport-local": "^1.0.0"
-    }
+    },
+    "engines": {
+        "node": "20.3.1"
+    },
+    "author": "Tony Hoong (https://github.com/bizarf)"
 }
