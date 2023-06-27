@@ -108,10 +108,10 @@ exports.user_login_post = [
                         }
 
                         const token = jwt.sign(
-                            user.toJSON(),
+                            { user },
                             process.env.JWT_SECRET
                         );
-                        res.json({ user, token });
+                        res.json({ token });
                     });
                 }
             }

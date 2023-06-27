@@ -32,4 +32,11 @@ router.delete(
 // gather all posts GET
 router.get("/posts", postController.posts_get);
 
+// gather all posts for author GET
+router.get(
+    "/author/posts",
+    passport.authenticate("jwt", { session: false }),
+    postController.author_all_posts_get
+);
+
 module.exports = router;
