@@ -109,7 +109,8 @@ exports.user_login_post = [
 
                         const token = jwt.sign(
                             { user },
-                            process.env.JWT_SECRET
+                            process.env.JWT_SECRET,
+                            { expiresIn: "1d" }
                         );
                         res.json({ token });
                     });
