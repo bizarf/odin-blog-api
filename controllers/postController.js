@@ -146,18 +146,28 @@ exports.post_single_get = asyncHandler(async (req, res, next) => {
 
 // all blog posts GET method for only if the article is published
 exports.posts_get = asyncHandler(async (req, res, next) => {
-    const allPosts = await Post.find({ published: true }).exec();
+    const page = req.query.page || 0;
+    const postsPerPage = 10;
+
+    const allPosts = await Post.find({ published: true })
+        .skip(page * postsPerPage)
+        .exec();
 
     res.json({ allPosts });
 });
 
 // all blog posts GET for the author CMS
 exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
+    const page = req.query.page || 0;
+    const postsPerPage = 10;
+
     // safeguard just incase someone gains access to cms
     if (!req.user.isAuthor) {
         res.status(401).json({ error: "You are not authorized to do that" });
     }
 
-    const allPosts = await Post.find().exec();
+    const allPosts = await Post.find()
+        .skip(page * postsPerPage)
+        .exec();
     res.json({ allPosts });
 });
