@@ -149,7 +149,7 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
     const page = req.query.page || 0;
     const postsPerPage = 10;
 
-    // count number of published posts for pagination buttons?
+    // count number of published posts for pagination buttons
     const totalPublishedPostsCount = await Post.countDocuments({
         published: true,
     }).exec();
