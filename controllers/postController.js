@@ -149,11 +149,18 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
     const page = req.query.page || 0;
     const postsPerPage = 10;
 
+    // count number of published posts for pagination buttons?
+    const totalPublishedPostsCount = await Post.countDocuments({
+        published: true,
+    }).exec();
+    // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
     const allPosts = await Post.find({ published: true })
+        .sort({ timestamp: -1 })
         .skip(page * postsPerPage)
+        .limit(postsPerPage)
         .exec();
 
-    res.json({ allPosts });
+    res.json({ totalPublishedPostsCount, allPosts });
 });
 
 // all blog posts GET for the author CMS
@@ -166,8 +173,13 @@ exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
         res.status(401).json({ error: "You are not authorized to do that" });
     }
 
+    // count total posts for pagination buttons?
+    const totalPostsCount = await Post.countDocuments().exec();
+    // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
     const allPosts = await Post.find()
+        .sort({ timestamp: -1 })
         .skip(page * postsPerPage)
+        .limit(postsPerPage)
         .exec();
-    res.json({ allPosts });
+    res.json({ totalPostsCount, allPosts });
 });

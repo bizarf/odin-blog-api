@@ -14,6 +14,12 @@ exports.comment_create_post = [
             });
         }
 
+        // check the post exists
+        const post = await Post.findById(req.body.id).exec();
+        if (post === null) {
+            res.status(404).json({ error: "Post not found" });
+        }
+
         const errors = validationResult(req);
 
         const comment = new Comment({
@@ -44,6 +50,12 @@ exports.comment_create_post = [
 
 // gets all comments from the post ID
 exports.comments_get = asyncHandler(async (req, res, next) => {
+    // check the post exists
+    const post = await Post.findById(req.body.id).exec();
+    if (post === null) {
+        res.status(404).json({ error: "Post not found" });
+    }
+
     // find comments by the post Id
     const allComments = await Comment.find({ postId: req.params.id }).exec();
     res.json({ allComments });
@@ -53,6 +65,12 @@ exports.comment_remove_delete = asyncHandler(async (req, res, next) => {
     // safe guard incase someone somehow tries to post a comment if they're not a user
     if (!req.user.isAuthor) {
         res.status(401).json({ error: "You are not authorized to do that" });
+    }
+
+    // check the post exists
+    const post = await Post.findById(req.body.id).exec();
+    if (post === null) {
+        res.status(404).json({ error: "Post not found" });
     }
 
     // check that comment exists first. if it does, then find and delete it.
