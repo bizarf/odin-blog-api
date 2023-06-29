@@ -29,7 +29,7 @@
         "passport-local": "^1.0.0"
     },
     "engines": {
-        "node": "18.16.1"
+        "node": "20.3.1"
     },
     "author": "Tony Hoong (https://github.com/bizarf)"
 }
