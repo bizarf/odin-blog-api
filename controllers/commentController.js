@@ -15,7 +15,7 @@ exports.comment_create_post = [
         }
 
         // check the post exists
-        const post = await Post.findById(req.body.id).exec();
+        const post = await Post.findById(req.params.id).exec();
         if (post === null) {
             res.status(404).json({ error: "Post not found" });
         }
@@ -51,7 +51,7 @@ exports.comment_create_post = [
 // gets all comments from the post ID
 exports.comments_get = asyncHandler(async (req, res, next) => {
     // check the post exists
-    const post = await Post.findById(req.body.id).exec();
+    const post = await Post.findById(req.params.id).exec();
     if (post === null) {
         res.status(404).json({ error: "Post not found" });
     }
@@ -70,7 +70,7 @@ exports.comment_remove_delete = asyncHandler(async (req, res, next) => {
     }
 
     // check the post exists
-    const post = await Post.findById(req.body.id).exec();
+    const post = await Post.findById(req.params.id).exec();
     if (post === null) {
         res.status(404).json({ error: "Post not found" });
     }
