@@ -57,7 +57,9 @@ exports.comments_get = asyncHandler(async (req, res, next) => {
     }
 
     // find comments by the post Id
-    const allComments = await Comment.find({ postId: req.params.id }).exec();
+    const allComments = await Comment.find({ postId: req.params.id })
+        .populate("user")
+        .exec();
     res.json({ allComments });
 });
 

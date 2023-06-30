@@ -135,7 +135,7 @@ exports.post_remove_delete = asyncHandler(async (req, res, next) => {
 // blog post GET method
 exports.post_single_get = asyncHandler(async (req, res, next) => {
     // if the blog post exists, then send it as a json object
-    const post = await Post.findById(req.params.id).exec();
+    const post = await Post.findById(req.params.id).populate("user").exec();
 
     if (post === null) {
         res.status(404).json({ error: "Post not found" });
