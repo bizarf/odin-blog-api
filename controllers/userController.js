@@ -80,7 +80,20 @@ exports.user_signup_post = [
 
 // user login POST method
 exports.user_login_post = [
-    body("username", "You must enter your username").trim().escape().notEmpty(),
+    body("username")
+        .trim()
+        .escape()
+        .notEmpty()
+        .withMessage("You must enter a username")
+        .custom(async (value, { req, res }) => {
+            const userExists = await User.findOne({
+                username: value,
+            }).exec();
+
+            if (!userExists) {
+                throw new Error("User does not exist");
+            }
+        }),
     body("password", "The password must not be empty")
         .trim()
         .escape()
