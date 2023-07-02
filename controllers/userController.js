@@ -4,9 +4,6 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
-const myValidationResult = validationResult.withDefaults({
-    formatter: (error) => error.msg,
-});
 
 // user sign up post method
 exports.user_signup_post = [
@@ -50,7 +47,7 @@ exports.user_signup_post = [
         }),
 
     asyncHandler(async (req, res, next) => {
-        const errors = myValidationResult(req);
+        const errors = validationResult(req);
 
         // hash the password using bcrypt
         bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
@@ -100,7 +97,7 @@ exports.user_login_post = [
         .notEmpty(),
 
     asyncHandler(async (req, res, next) => {
-        const errors = myValidationResult(req);
+        const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
             res.status(401).json({

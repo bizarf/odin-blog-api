@@ -2,9 +2,6 @@ const Post = require("../models/post");
 const Comment = require("../models/comment");
 const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
-const myValidationResult = validationResult.withDefaults({
-    formatter: (error) => error.msg,
-});
 
 // blog post create POST method
 exports.post_create_post = [
@@ -16,7 +13,7 @@ exports.post_create_post = [
     body("publish", "Please choose whether the post is published").isBoolean(),
 
     asyncHandler(async (req, res, next) => {
-        const errors = myValidationResult(req);
+        const errors = validationResult(req);
 
         // safe guard incase someone somehow tries to submit a post if they're not an author
         if (!req.user.isAuthor) {
@@ -85,7 +82,7 @@ exports.post_edit_put = [
             _id: req.params.id,
         });
 
-        const errors = myValidationResult(req);
+        const errors = validationResult(req);
 
         // use findByIdAndUpdate to update the database document
         if (!errors.isEmpty()) {
