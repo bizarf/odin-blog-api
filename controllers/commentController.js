@@ -4,7 +4,13 @@ const asyncHandler = require("express-async-handler");
 const { body, validationResult } = require("express-validator");
 
 exports.comment_create_post = [
-    body("comment", "Your comment cannot be empty").trim().escape().notEmpty(),
+    body("comment")
+        .trim()
+        .escape()
+        .notEmpty()
+        .withMessage("Your comment cannot be empty")
+        .isLength({ max: 250 })
+        .withMessage("Only 250 characters are allowed"),
 
     asyncHandler(async (req, res, next) => {
         // safe guard incase someone somehow tries to post a comment if they're not a user

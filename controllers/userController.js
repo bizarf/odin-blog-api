@@ -103,7 +103,9 @@ exports.user_login_post = [
         const errors = myValidationResult(req);
 
         if (!errors.isEmpty()) {
-            res.status(401).json({ errors: errors.array() });
+            res.status(401).json({
+                errors: errors.array({ onlyFirstError: true }),
+            });
         }
         // req, res, next at the end or else passport authenticate will hang
         // passport local authentication. set session to false as I will use a jsonwebtoken instead
@@ -135,10 +137,12 @@ exports.user_login_post = [
 
 // logout function
 exports.user_logout_get = asyncHandler(async (req, res, next) => {
-    req.logout(function (err) {
-        if (err) {
-            return next(err);
-        }
-        res.redirect("/");
-    });
+    // req.logout(function (err) {
+    //     if (err) {
+    //         return next(err);
+    //     }
+    //     res.redirect("/");
+    // });
+    console.log("logged out");
+    // don't need this function anymore, since the JWT is stored in the cookies so the logout function will be done in the client instead
 });
