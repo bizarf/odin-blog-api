@@ -14,11 +14,11 @@ exports.comment_create_post = [
 
     asyncHandler(async (req, res, next) => {
         // safe guard incase someone somehow tries to post a comment if they're not a user
-        // if (!req.user) {
-        //     res.status(401).json({
-        //         error: "You are not authorized to do that",
-        //     });
-        // }
+        if (!req.user) {
+            res.status(401).json({
+                error: "You are not authorized to do that",
+            });
+        }
 
         // check the post exists
         const post = await Post.findById(req.params.id).exec();
@@ -29,7 +29,7 @@ exports.comment_create_post = [
         const errors = validationResult(req);
 
         const comment = new Comment({
-            user: req.body.userId,
+            user: req.user._id,
             text: req.body.comment,
             postId: req.body.id,
             timestamp: new Date(),
