@@ -39,4 +39,11 @@ router.get(
     postController.author_all_posts_get
 );
 
+// publish post toggle
+router.put(
+    "/author/post/:id/publish",
+    passport.authenticate("jwt", { session: false }),
+    postController.post_publish_post
+);
+
 module.exports = router;

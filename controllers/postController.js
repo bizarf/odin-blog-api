@@ -180,3 +180,42 @@ exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
         .exec();
     res.json({ totalPostsCount, allPosts });
 });
+
+exports.post_publish_put = asyncHandler(async (req, res, next) => {
+    // safe guard incase someone somehow tries to submit a post if they're not an author
+    if (!req.user.isAuthor) {
+        res.status(401).json({
+            error: "You are not authorized to do that",
+        });
+    }
+
+    // get the original post object, so that we can later pass the original timestamp to the updated post object
+    const post = await Post.findById(req.params.id).exec();
+
+    // make sure the post exists first
+    if (!post) {
+        res.status(401).json({ error: "The post does not exist" });
+    }
+
+    if (post.published === true) {
+        // if the blog post is published, then toggle to false
+        const updatePublish = await Post.findByIdAndUpdate(req.params.id, {
+            published: false,
+        });
+        if (updatePublish) {
+            res.json({ message: "Post successfully updated" });
+        } else {
+            res.status(422).json({ error: "Something went wrong" });
+        }
+    } else {
+        // if blog post is not published, then toggle to true
+        const updatePublish = await Post.findByIdAndUpdate(req.params.id, {
+            published: true,
+        });
+        if (updatePublish) {
+            res.json({ message: "Post successfully updated" });
+        } else {
+            res.status(422).json({ error: "Something went wrong" });
+        }
+    }
+});
