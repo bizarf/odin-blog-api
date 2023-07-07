@@ -43,7 +43,7 @@ router.get(
 router.put(
     "/author/post/:id/publish",
     passport.authenticate("jwt", { session: false }),
-    postController.post_publish_post
+    postController.post_publish_put
 );
 
 module.exports = router;
