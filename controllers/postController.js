@@ -10,7 +10,10 @@ exports.post_create_post = [
         .trim()
         .escape()
         .notEmpty(),
-    body("publish", "Please choose whether the post is published").isBoolean(),
+    body("publish", "Please choose whether the post is published")
+        .trim()
+        .escape()
+        .notEmpty(),
 
     asyncHandler(async (req, res, next) => {
         const errors = validationResult(req);
@@ -148,10 +151,10 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
 
     // count number of published posts for pagination buttons
     const totalPublishedPostsCount = await Post.countDocuments({
-        published: true,
+        published: "yes",
     }).exec();
     // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
-    const allPosts = await Post.find({ published: true })
+    const allPosts = await Post.find({ published: "yes" })
         .sort({ timestamp: -1 })
         .skip(page * postsPerPage)
         .limit(postsPerPage)
@@ -197,10 +200,10 @@ exports.post_publish_put = asyncHandler(async (req, res, next) => {
         res.status(401).json({ error: "The post does not exist" });
     }
 
-    if (post.published === true) {
-        // if the blog post is published, then toggle to false
+    if (post.published === "yes") {
+        // if the blog post is published, then toggle to no
         const updatePublish = await Post.findByIdAndUpdate(req.params.id, {
-            published: false,
+            published: "no",
         });
         if (updatePublish) {
             res.json({ message: "Post successfully updated" });
@@ -208,9 +211,9 @@ exports.post_publish_put = asyncHandler(async (req, res, next) => {
             res.status(422).json({ error: "Something went wrong" });
         }
     } else {
-        // if blog post is not published, then toggle to true
+        // if blog post is not published, then toggle to yes
         const updatePublish = await Post.findByIdAndUpdate(req.params.id, {
-            published: true,
+            published: "yes",
         });
         if (updatePublish) {
             res.json({ message: "Post successfully updated" });
