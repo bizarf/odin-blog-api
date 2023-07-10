@@ -7,7 +7,7 @@ const PostSchema = new Schema({
     title: { type: String, required: true },
     textContent: { type: String, required: true },
     timestamp: { type: Date },
-    published: { type: string, default: "no", required: true },
+    published: { type: String, default: "no", required: true },
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
 
