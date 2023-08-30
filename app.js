@@ -43,8 +43,8 @@ app.use(cors());
 // express rate limiter
 const RateLimit = require("express-rate-limit");
 const limiter = RateLimit({
-    windowMs: 5 * 60 * 1000,
-    max: 50,
+    windowMs: 15 * 60 * 1000,
+    max: 100,
 });
 app.use(limiter);
 
