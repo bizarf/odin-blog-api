@@ -18,4 +18,7 @@ router.post("/login", userController.user_login_post);
 // user logout
 router.get("/logout", userController.user_logout_get);
 
+// get user details from database
+router.get("/user/:userId", userController.user_details_get);
+
 module.exports = router;

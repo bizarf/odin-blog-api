@@ -148,3 +148,17 @@ exports.user_logout_get = asyncHandler(async (req, res, next) => {
     console.log("logged out");
     // don't need this function anymore, since the JWT is stored in the cookies so the logout function will be done in the client instead
 });
+
+exports.user_details_get = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.params.userId)
+        .select("-password")
+        .exec();
+
+    if (user === null) {
+        return res
+            .status(404)
+            .json({ success: false, message: "User not found" });
+    } else {
+        return res.json({ success: true, user });
+    }
+});

@@ -1,5 +1,6 @@
 const supertest = require("supertest");
 const app = require("../app");
+const User = require("../models/user");
 const request = supertest(app);
 const { expect } = require("chai");
 const {
@@ -8,6 +9,8 @@ const {
 } = require("../middleware/mongoConfig");
 
 describe("user route tests", () => {
+    let jerryId;
+
     before(async () => {
         await disconnectDatabase();
         process.env.NODE_ENV = "test";
@@ -55,6 +58,10 @@ describe("user route tests", () => {
                 expect(res.body.success).to.be.a("boolean");
                 expect(res.body.success).to.equal(true);
             });
+
+        const user = await User.findOne({ username: "jerrylane@test.com" });
+        expect(user.firstname).to.equal("Jerry");
+        jerryId = user._id;
     });
 
     it("user logs into the account", async () => {
@@ -70,6 +77,19 @@ describe("user route tests", () => {
                 expect(res.body.success).to.be.a("boolean");
                 expect(res.body.success).to.equal(true);
                 expect(res.body.token).to.be.a("string");
+            });
+    });
+
+    it("user details are fetched from the database", async () => {
+        await request
+            .get(`/api/user/${jerryId}`)
+            .set("Content-Type", "application/json")
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.success).to.be.a("boolean");
+                expect(res.body.success).to.equal(true);
+                expect(res.body.user).to.be.an("object");
+                expect(res.body.user.firstname).to.equal("Jerry");
             });
     });
 });
