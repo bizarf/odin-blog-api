@@ -15,7 +15,8 @@ exports.comment_create_post = [
     asyncHandler(async (req, res, next) => {
         // safe guard incase someone somehow tries to post a comment if they're not a user
         if (!req.user) {
-            res.status(401).json({
+            return res.status(401).json({
+                success: false,
                 error: "You are not authorized to do that",
             });
         }
@@ -23,7 +24,9 @@ exports.comment_create_post = [
         // check the post exists
         const post = await Post.findById(req.params.id).exec();
         if (post === null) {
-            res.status(404).json({ error: "Post not found" });
+            return res
+                .status(404)
+                .json({ success: false, error: "Post not found" });
         }
 
         const errors = validationResult(req);
@@ -31,24 +34,29 @@ exports.comment_create_post = [
         const comment = new Comment({
             user: req.user._id,
             text: req.body.comment,
-            postId: req.body.id,
+            postId: req.params.id,
             timestamp: new Date(),
         });
 
         // if there is an error in the validation, then send an array of error messages
         if (!errors.isEmpty()) {
-            res.status(401).json({
+            return res.status(400).json({
+                success: false,
                 errors: errors.array({ onlyFirstError: true }),
             });
         } else {
             // try to save. if it goes through then send success msg
             const save = await comment.save();
             if (save) {
-                res.status(200).json({
+                return res.status(200).json({
+                    success: true,
                     message: "Comment was successfully made!",
                 });
             } else {
-                res.status(422).json({ error: "Something went wrong" });
+                return res.status(422).json({
+                    success: false,
+                    error: "Something went wrong",
+                });
             }
         }
     }),
@@ -59,26 +67,29 @@ exports.comments_get = asyncHandler(async (req, res, next) => {
     // check the post exists
     const post = await Post.findById(req.params.id).exec();
     if (post === null) {
-        res.status(404).json({ error: "Post not found" });
+        res.status(404).json({ success: false, error: "Post not found" });
     }
 
     // find comments by the post Id
     const allComments = await Comment.find({ postId: req.params.id })
         .populate("user")
         .exec();
-    res.json({ allComments });
+    res.json({ success: true, allComments });
 });
 
 exports.comment_remove_delete = asyncHandler(async (req, res, next) => {
     // safe guard incase someone somehow tries to post a comment if they're not a user
     if (!req.user.isAuthor) {
-        res.status(401).json({ error: "You are not authorized to do that" });
+        res.status(401).json({
+            success: false,
+            error: "You are not authorized to do that",
+        });
     }
 
     // check the post exists
     const post = await Post.findById(req.params.id).exec();
     if (post === null) {
-        res.status(404).json({ error: "Post not found" });
+        res.status(404).json({ success: false, error: "Post not found" });
     }
 
     // check that comment exists first. if it does, then find and delete it.
@@ -88,7 +99,7 @@ exports.comment_remove_delete = asyncHandler(async (req, res, next) => {
     });
 
     if (comment === null) {
-        res.status(404).json({ error: "Comment not found" });
+        res.status(404).json({ success: false, error: "Comment not found" });
     } else {
         const deletePost = await Comment.findOneAndDelete({
             _id: req.params.commentId,
@@ -96,9 +107,12 @@ exports.comment_remove_delete = asyncHandler(async (req, res, next) => {
         });
 
         if (deletePost) {
-            res.json({ message: "Post successfully deleted" });
+            res.json({ success: true, message: "Post successfully deleted" });
         } else {
-            res.status(422).json({ error: "Something went wrong" });
+            res.status(422).json({
+                success: false,
+                error: "Something went wrong",
+            });
         }
     }
 });

@@ -63,12 +63,16 @@ exports.user_signup_post = [
                 });
 
                 if (!errors.isEmpty()) {
-                    res.json({
+                    return res.status(400).json({
+                        success: false,
                         errors: errors.array({ onlyFirstError: true }),
                     });
                 } else {
                     await user.save();
-                    res.json({ message: "Sign up was successful!" });
+                    return res.status(201).json({
+                        success: true,
+                        message: "Sign up was successful!",
+                    });
                 }
             }
         });
@@ -101,6 +105,7 @@ exports.user_login_post = [
 
         if (!errors.isEmpty()) {
             res.status(401).json({
+                success: false,
                 errors: errors.array({ onlyFirstError: true }),
             });
         }
@@ -120,11 +125,11 @@ exports.user_login_post = [
                         }
 
                         const token = jwt.sign(
-                            { user },
+                            { user: user._id },
                             process.env.JWT_SECRET,
                             { expiresIn: "1d" }
                         );
-                        res.json({ token });
+                        res.json({ success: true, token: token });
                     });
                 }
             }

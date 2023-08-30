@@ -38,3 +38,5 @@ npm start
 -   BCrypt JS
 -   Passport
 -   Jsonwebtoken
+-   Mocha with Chai and Supertest
+-   MongoDB memory server

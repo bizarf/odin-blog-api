@@ -29,7 +29,7 @@ router.delete(
     postController.post_remove_delete
 );
 
-// gather all posts GET
+// gather all published posts GET
 router.get("/posts", postController.posts_get);
 
 // gather all posts for author GET

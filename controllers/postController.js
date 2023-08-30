@@ -20,7 +20,8 @@ exports.post_create_post = [
 
         // safe guard incase someone somehow tries to submit a post if they're not an author
         if (!req.user.isAuthor) {
-            res.status(401).json({
+            return res.status(401).json({
+                success: false,
                 error: "You are not authorized to do that",
             });
         }
@@ -35,17 +36,21 @@ exports.post_create_post = [
 
         // if there is an error, then send an errors in an array. if not then save the post. once it's successfully saved, we pass a success message
         if (!errors.isEmpty()) {
-            res.status(401).json({
+            return res.status(400).json({
+                success: false,
                 errors: errors.array({ onlyFirstError: true }),
             });
         } else {
             const save = await post.save();
             if (save) {
-                res.status(200).json({
+                return res.status(200).json({
+                    success: true,
                     message: "Post was successfully made!",
                 });
             } else {
-                res.status(422).json({ error: "Something went wrong" });
+                return res
+                    .status(422)
+                    .json({ success: false, error: "Something went wrong" });
             }
         }
     }),
@@ -58,11 +63,15 @@ exports.post_edit_put = [
         .trim()
         .escape()
         .notEmpty(),
-    body("publish", "Please choose whether the post is published").isBoolean(),
+    body("publish", "Please choose whether the post is published")
+        .trim()
+        .escape()
+        .notEmpty(),
 
     asyncHandler(async (req, res, next) => {
         if (!req.user.isAuthor) {
             res.status(401).json({
+                success: false,
                 error: "You are not authorized to do that",
             });
         }
@@ -72,7 +81,10 @@ exports.post_edit_put = [
 
         // make sure the post exists first
         if (!post) {
-            res.status(401).json({ error: "The post does not exist" });
+            res.status(400).json({
+                success: false,
+                error: "The post does not exist",
+            });
         }
 
         // the original _id is important or else a new post is created instead
@@ -89,7 +101,7 @@ exports.post_edit_put = [
 
         // use findByIdAndUpdate to update the database document
         if (!errors.isEmpty()) {
-            res.status(401).json({ errors: errors.array() });
+            res.status(400).json({ success: false, errors: errors.array() });
         } else {
             const save = await Post.findByIdAndUpdate(
                 req.params.id,
@@ -98,10 +110,14 @@ exports.post_edit_put = [
             );
             if (save) {
                 res.status(200).json({
+                    success: true,
                     message: "Post was successfully updated!",
                 });
             } else {
-                res.status(422).json({ error: "Something went wrong" });
+                res.status(422).json({
+                    success: false,
+                    error: "Something went wrong",
+                });
             }
         }
     }),
@@ -110,14 +126,17 @@ exports.post_edit_put = [
 // blog post remove DELETE method
 exports.post_remove_delete = asyncHandler(async (req, res, next) => {
     if (!req.user.isAuthor) {
-        res.status(401).json({ error: "You are not authorized to do that" });
+        res.status(401).json({
+            success: false,
+            error: "You are not authorized to do that",
+        });
     }
 
     // check that the post exists. if it does then we need to delete all comments that are on that post. after that is done, we can finally delete the blog post itself.
     const post = await Post.findById(req.params.id).exec();
 
     if (post === null) {
-        res.status(404).json({ error: "Post not found" });
+        res.status(404).json({ success: false, error: "Post not found" });
     } else {
         const comments = Comment.find({ postId: req.params.id });
         if (comments) {
@@ -125,9 +144,12 @@ exports.post_remove_delete = asyncHandler(async (req, res, next) => {
         }
         const deletedPost = await Post.findByIdAndDelete(req.params.id);
         if (deletedPost) {
-            res.json({ message: "Post successfully deleted" });
+            res.json({ success: true, message: "Post successfully deleted" });
         } else {
-            res.status(422).json({ error: "Something went wrong" });
+            res.status(422).json({
+                success: false,
+                error: "Something went wrong",
+            });
         }
     }
 });
@@ -135,12 +157,14 @@ exports.post_remove_delete = asyncHandler(async (req, res, next) => {
 // blog post GET method
 exports.post_single_get = asyncHandler(async (req, res, next) => {
     // if the blog post exists, then send it as a json object
-    const post = await Post.findById(req.params.id).populate("user").exec();
+    const post = await Post.findById(req.params.id)
+        .populate({ path: "user", select: "-password" })
+        .exec();
 
     if (post === null) {
-        res.status(404).json({ error: "Post not found" });
+        res.status(404).json({ success: false, error: "Post not found" });
     } else {
-        res.json(post);
+        res.json({ success: true, post });
     }
 });
 
@@ -160,7 +184,7 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
         .limit(postsPerPage)
         .exec();
 
-    res.json({ totalPublishedPostsCount, allPosts });
+    res.json({ success: true, totalPublishedPostsCount, allPosts });
 });
 
 // all blog posts GET for the author CMS
@@ -170,7 +194,10 @@ exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
 
     // safeguard just incase someone gains access to cms
     if (!req.user.isAuthor) {
-        res.status(401).json({ error: "You are not authorized to do that" });
+        res.status(401).json({
+            success: false,
+            error: "You are not authorized to do that",
+        });
     }
 
     // count total posts for pagination buttons?
@@ -181,13 +208,14 @@ exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
         .skip(page * postsPerPage)
         .limit(postsPerPage)
         .exec();
-    res.json({ totalPostsCount, allPosts });
+    res.json({ success: true, totalPostsCount, allPosts });
 });
 
 exports.post_publish_put = asyncHandler(async (req, res, next) => {
     // safe guard incase someone somehow tries to submit a post if they're not an author
     if (!req.user.isAuthor) {
         res.status(401).json({
+            success: false,
             error: "You are not authorized to do that",
         });
     }
@@ -197,7 +225,10 @@ exports.post_publish_put = asyncHandler(async (req, res, next) => {
 
     // make sure the post exists first
     if (!post) {
-        res.status(401).json({ error: "The post does not exist" });
+        res.status(400).json({
+            success: false,
+            error: "The post does not exist",
+        });
     }
 
     if (post.published === "yes") {
@@ -206,9 +237,12 @@ exports.post_publish_put = asyncHandler(async (req, res, next) => {
             published: "no",
         });
         if (updatePublish) {
-            res.json({ message: "Post successfully updated" });
+            res.json({ success: true, message: "Post successfully updated" });
         } else {
-            res.status(422).json({ error: "Something went wrong" });
+            res.status(422).json({
+                success: false,
+                error: "Something went wrong",
+            });
         }
     } else {
         // if blog post is not published, then toggle to yes
@@ -216,9 +250,12 @@ exports.post_publish_put = asyncHandler(async (req, res, next) => {
             published: "yes",
         });
         if (updatePublish) {
-            res.json({ message: "Post successfully updated" });
+            res.json({ success: true, message: "Post successfully updated" });
         } else {
-            res.status(422).json({ error: "Something went wrong" });
+            res.status(422).json({
+                success: false,
+                error: "Something went wrong",
+            });
         }
     }
 });

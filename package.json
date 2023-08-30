@@ -5,7 +5,8 @@
     "scripts": {
         "start": "node ./bin/www",
         "devstart": "nodemon ./bin/www",
-        "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart"
+        "serverstart": "DEBUG=express-locallibrary-tutorial:* npm run devstart",
+        "test": "mocha --timeout 5000 --recursive"
     },
     "dependencies": {
         "bcrypt": "^5.0.1",
@@ -29,7 +30,13 @@
         "passport-local": "^1.0.0"
     },
     "engines": {
-        "node": "20.3.1"
+        "node": "18.16.1"
     },
-    "author": "Tony Hoong (https://github.com/bizarf)"
+    "author": "Tony Hoong (https://github.com/bizarf)",
+    "devDependencies": {
+        "chai": "^4.3.8",
+        "mocha": "^10.2.0",
+        "mongodb-memory-server": "^8.15.1",
+        "supertest": "^6.3.3"
+    }
 }
