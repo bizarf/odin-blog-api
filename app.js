@@ -41,10 +41,12 @@ app.use(helmet());
 app.use(cors());
 
 // express rate limiter
-const RateLimit = require("express-rate-limit");
-const limiter = RateLimit({
+const { rateLimit } = require("express-rate-limit");
+const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    limit: 100,
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
 });
 app.use(limiter);
 
