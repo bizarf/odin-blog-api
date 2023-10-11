@@ -171,7 +171,7 @@ exports.post_single_get = asyncHandler(async (req, res, next) => {
 // all blog posts GET method for only if the article is published
 exports.posts_get = asyncHandler(async (req, res, next) => {
     // if no page is specified, then set the page to 1
-    const page = req.query.page || 1;
+    let page = req.query.page || 1;
     const postsPerPage = 10;
 
     // if the page search query is entered as a 0 or a number below that, then set it to 1.
@@ -196,7 +196,7 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
 // all blog posts GET for the author CMS
 exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
     // if no page is specified, then set the page to 1
-    const page = req.query.page || 1;
+    let page = req.query.page || 1;
     const postsPerPage = 10;
 
     // if the page search query is entered as a 0 or a number below that, then set it to 1.
