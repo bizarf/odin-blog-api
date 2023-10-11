@@ -170,8 +170,14 @@ exports.post_single_get = asyncHandler(async (req, res, next) => {
 
 // all blog posts GET method for only if the article is published
 exports.posts_get = asyncHandler(async (req, res, next) => {
-    const page = req.query.page || 0;
+    // if no page is specified, then set the page to 1
+    const page = req.query.page || 1;
     const postsPerPage = 10;
+
+    // if the page search query is entered as a 0 or a number below that, then set it to 1.
+    if (page <= 0) {
+        page = 1;
+    }
 
     // count number of published posts for pagination buttons
     const totalPublishedPostsCount = await Post.countDocuments({
@@ -180,7 +186,7 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
     // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
     const allPosts = await Post.find({ published: "yes" })
         .sort({ timestamp: -1 })
-        .skip(page * postsPerPage)
+        .skip((page - 1) * postsPerPage)
         .limit(postsPerPage)
         .exec();
 
@@ -189,8 +195,14 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
 
 // all blog posts GET for the author CMS
 exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
-    const page = req.query.page || 0;
+    // if no page is specified, then set the page to 1
+    const page = req.query.page || 1;
     const postsPerPage = 10;
+
+    // if the page search query is entered as a 0 or a number below that, then set it to 1.
+    if (page <= 0) {
+        page = 1;
+    }
 
     // safeguard just incase someone gains access to cms
     if (!req.user.isAuthor) {
@@ -205,7 +217,7 @@ exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
     // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
     const allPosts = await Post.find()
         .sort({ timestamp: -1 })
-        .skip(page * postsPerPage)
+        .skip((page - 1) * postsPerPage)
         .limit(postsPerPage)
         .exec();
     res.json({ success: true, totalPostsCount, allPosts });
