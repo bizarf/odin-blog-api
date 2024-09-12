@@ -7,19 +7,19 @@ const passport = require("passport");
 //
 // comment POST method
 router.post(
-    "/post/:id/comment",
+    "/:id/comment",
     passport.authenticate("jwt", { session: false }),
     commentController.comment_create_post
 );
 
 // comment delete method
 router.delete(
-    "/post/:id/:commentId",
+    "/:id/:commentId",
     passport.authenticate("jwt", { session: false }),
     commentController.comment_remove_delete
 );
 
 // comments GET method
-router.get("/post/:id/comments", commentController.comments_get);
+router.get("/:id/comments", commentController.comments_get);
 
 module.exports = router;

@@ -15,10 +15,10 @@ exports.post_create_post = [
         .escape()
         .notEmpty(),
 
-    asyncHandler(async (req, res, next) => {
+    asyncHandler(async (req, res) => {
         const errors = validationResult(req);
 
-        // safe guard incase someone somehow tries to submit a post if they're not an author
+        // safe guard in case someone somehow tries to submit a post if they're not an author
         if (!req.user.isAuthor) {
             return res.status(401).json({
                 success: false,
@@ -68,7 +68,7 @@ exports.post_edit_put = [
         .escape()
         .notEmpty(),
 
-    asyncHandler(async (req, res, next) => {
+    asyncHandler(async (req, res) => {
         if (!req.user.isAuthor) {
             res.status(401).json({
                 success: false,
@@ -124,7 +124,7 @@ exports.post_edit_put = [
 ];
 
 // blog post remove DELETE method
-exports.post_remove_delete = asyncHandler(async (req, res, next) => {
+exports.post_remove_delete = asyncHandler(async (req, res) => {
     if (!req.user.isAuthor) {
         res.status(401).json({
             success: false,
@@ -155,7 +155,7 @@ exports.post_remove_delete = asyncHandler(async (req, res, next) => {
 });
 
 // blog post GET method
-exports.post_single_get = asyncHandler(async (req, res, next) => {
+exports.post_single_get = asyncHandler(async (req, res) => {
     // if the blog post exists, then send it as a json object
     const post = await Post.findById(req.params.id)
         .populate({ path: "user", select: "-password" })
@@ -169,7 +169,7 @@ exports.post_single_get = asyncHandler(async (req, res, next) => {
 });
 
 // all blog posts GET method for only if the article is published
-exports.posts_get = asyncHandler(async (req, res, next) => {
+exports.posts_get = asyncHandler(async (req, res) => {
     // if no page is specified, then set the page to 1
     let page = req.query.page || 1;
     const postsPerPage = 10;
@@ -194,7 +194,7 @@ exports.posts_get = asyncHandler(async (req, res, next) => {
 });
 
 // all blog posts GET for the author CMS
-exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
+exports.author_all_posts_get = asyncHandler(async (req, res) => {
     // if no page is specified, then set the page to 1
     let page = req.query.page || 1;
     const postsPerPage = 10;
@@ -204,7 +204,7 @@ exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
         page = 1;
     }
 
-    // safeguard just incase someone gains access to cms
+    // safeguard just in case someone gains access to cms
     if (!req.user.isAuthor) {
         res.status(401).json({
             success: false,
@@ -223,8 +223,8 @@ exports.author_all_posts_get = asyncHandler(async (req, res, next) => {
     res.json({ success: true, totalPostsCount, allPosts });
 });
 
-exports.post_publish_put = asyncHandler(async (req, res, next) => {
-    // safe guard incase someone somehow tries to submit a post if they're not an author
+exports.post_publish_put = asyncHandler(async (req, res) => {
+    // safe guard in case someone somehow tries to submit a post if they're not an author
     if (!req.user.isAuthor) {
         res.status(401).json({
             success: false,

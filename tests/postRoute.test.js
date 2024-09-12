@@ -4,20 +4,14 @@ const request = supertest(app);
 const User = require("../models/user");
 const Post = require("../models/post");
 const { expect } = require("chai");
-const {
-    connectToDatabase,
-    disconnectDatabase,
-} = require("../middleware/mongoConfig");
+const { describe, before, after, it } = require("mocha");
+const { closeDatabase } = require("../utils/config");
 
-describe("user route tests", () => {
+describe("post route tests", () => {
     let jerryJWT;
     let postId;
 
     before(async () => {
-        await disconnectDatabase();
-        process.env.NODE_ENV = "test";
-        await connectToDatabase();
-
         await request
             .post("/api/sign-up")
             .set("Content-Type", "application/json")
@@ -48,11 +42,6 @@ describe("user route tests", () => {
             .expect((res) => {
                 jerryJWT = res.body.token;
             });
-    });
-
-    // disconnects and removes the memory server after test
-    after(async () => {
-        await disconnectDatabase();
     });
 
     it("user fails to make a post", async () => {
@@ -228,4 +217,9 @@ describe("user route tests", () => {
         const posts = await Post.find();
         expect(posts.length).to.equal(1);
     });
+});
+
+// disconnects and removes the memory server after test
+after(async () => {
+    await closeDatabase();
 });

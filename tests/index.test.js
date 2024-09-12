@@ -1,23 +1,10 @@
 const supertest = require("supertest");
 const app = require("../app");
 const request = supertest(app);
-const {
-    connectToDatabase,
-    disconnectDatabase,
-} = require("../middleware/mongoConfig");
+const { describe, after, it } = require("mocha");
+const { closeDatabase } = require("../utils/config");
 
 describe("index route tests", () => {
-    before(async () => {
-        await disconnectDatabase();
-        process.env.NODE_ENV = "test";
-        await connectToDatabase();
-    });
-
-    // disconnects and removes the memory server after test
-    after(async () => {
-        await disconnectDatabase();
-    });
-
     it("/ redirects to /api", async () => {
         await request
             .get("/")
@@ -33,4 +20,9 @@ describe("index route tests", () => {
             .expect({ message: "Welcome to the blog API" })
             .expect(200);
     });
+});
+
+// disconnects and removes the memory server after test
+after(async () => {
+    await closeDatabase();
 });

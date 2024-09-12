@@ -5,21 +5,15 @@ const User = require("../models/user");
 const Comment = require("../models/comment");
 const Post = require("../models/post");
 const { expect } = require("chai");
-const {
-    connectToDatabase,
-    disconnectDatabase,
-} = require("../middleware/mongoConfig");
+const { closeDatabase } = require("../utils/config");
+const { describe, before, after, it } = require("mocha");
 
-describe("user route tests", () => {
+describe("comment route tests", () => {
     let jerryJWT;
     let postId;
     let commentId;
 
     before(async () => {
-        await disconnectDatabase();
-        process.env.NODE_ENV = "test";
-        await connectToDatabase();
-
         await request
             .post("/api/sign-up")
             .set("Content-Type", "application/json")
@@ -71,11 +65,6 @@ describe("user route tests", () => {
         });
 
         postId = post._id;
-    });
-
-    // disconnects and removes the memory server after test
-    after(async () => {
-        await disconnectDatabase();
     });
 
     it("user fails to make a comment", async () => {
@@ -138,4 +127,9 @@ describe("user route tests", () => {
         const comments = await Comment.find();
         expect(comments.length).to.equal(0);
     });
+});
+
+// disconnects and removes the memory server after test
+after(async () => {
+    await closeDatabase();
 });

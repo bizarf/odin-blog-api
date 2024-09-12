@@ -4,7 +4,9 @@ const logger = require("morgan");
 const cors = require("cors");
 const compression = require("compression");
 const helmet = require("helmet");
+const config = require("./utils/config");
 
+// route imports
 const indexRouter = require("./routes/index");
 const userRoute = require("./routes/userRoute");
 const postRoute = require("./routes/postRoute");
@@ -12,16 +14,10 @@ const commentRoute = require("./routes/commentRoute");
 
 const app = express();
 
-// setup dotenv and mongoose connection
-require("dotenv").config();
 // passport js config
 require("./utils/passportConfig");
 
-const { connectToDatabase } = require("./middleware/mongoConfig");
-
-connectToDatabase().then(() => {
-    console.log("Connected to the database");
-});
+config.connectToDatabase();
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -40,14 +36,15 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// routes
 app.use("/", indexRouter);
 app.use("/api", userRoute);
 app.use("/api", postRoute);
-app.use("/api", commentRoute);
+app.use("/api/post", commentRoute);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    next(createError(404));
+    next(createError(404, "Error 404: Page not found"));
 });
 
 // error handler
@@ -58,7 +55,7 @@ app.use(function (err, req, res) {
 
     // render the error page
     res.status(err.status || 500);
-    res.send("404 Error");
+    res.render("error");
 });
 
 module.exports = app;
