@@ -12,7 +12,7 @@ exports.comment_create_post = [
         .isLength({ max: 250 })
         .withMessage("Only 250 characters are allowed"),
 
-    asyncHandler(async (req, res, next) => {
+    asyncHandler(async (req, res) => {
         // safe guard incase someone somehow tries to post a comment if they're not a user
         if (!req.user) {
             return res.status(401).json({
@@ -63,7 +63,7 @@ exports.comment_create_post = [
 ];
 
 // gets all comments from the post ID
-exports.comments_get = asyncHandler(async (req, res, next) => {
+exports.comments_get = asyncHandler(async (req, res) => {
     // check the post exists
     const post = await Post.findById(req.params.id).exec();
     if (post === null) {
@@ -77,7 +77,7 @@ exports.comments_get = asyncHandler(async (req, res, next) => {
     res.json({ success: true, allComments });
 });
 
-exports.comment_remove_delete = asyncHandler(async (req, res, next) => {
+exports.comment_remove_delete = asyncHandler(async (req, res) => {
     // safe guard incase someone somehow tries to post a comment if they're not a user
     if (!req.user.isAuthor) {
         res.status(401).json({

@@ -1,3 +1,4 @@
+require("dotenv").config();
 // encrypt and decrypt passwords
 const bcrypt = require("bcrypt");
 // passport and strategies to handle auth
@@ -56,13 +57,3 @@ passport.use(
         }
     )
 );
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-        done(err, user);
-    });
-});

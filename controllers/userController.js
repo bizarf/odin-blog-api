@@ -14,7 +14,7 @@ exports.user_signup_post = [
         .escape()
         .notEmpty()
         .withMessage("You must enter a username")
-        .custom(async (value, { req, res }) => {
+        .custom(async (value) => {
             const userExists = await User.findOne({
                 username: value,
             }).exec();
@@ -38,15 +38,15 @@ exports.user_signup_post = [
         .isLength({ min: 8 })
         .withMessage("Your password must be at least 8 characters long")
         // custom validator to compare password and confirm password fields
-        .custom(async (value, { req, res }) => {
+        .custom(async (value, { req }) => {
             // wait for the password field or else there is no value to compare
             await req.body.password;
-            if (req.body.password != value) {
+            if (req.body.password !== value) {
                 throw new Error("The passwords don't match");
             }
         }),
 
-    asyncHandler(async (req, res, next) => {
+    asyncHandler(async (req, res) => {
         const errors = validationResult(req);
 
         // hash the password using bcrypt
@@ -86,7 +86,7 @@ exports.user_login_post = [
         .escape()
         .notEmpty()
         .withMessage("You must enter a username")
-        .custom(async (value, { req, res }) => {
+        .custom(async (value) => {
             const userExists = await User.findOne({
                 username: value,
             }).exec();
@@ -137,19 +137,7 @@ exports.user_login_post = [
     }),
 ];
 
-// logout function
-exports.user_logout_get = asyncHandler(async (req, res, next) => {
-    // req.logout(function (err) {
-    //     if (err) {
-    //         return next(err);
-    //     }
-    //     res.redirect("/");
-    // });
-    console.log("logged out");
-    // don't need this function anymore, since the JWT is stored in the cookies so the logout function will be done in the client instead
-});
-
-exports.user_details_get = asyncHandler(async (req, res, next) => {
+exports.user_details_get = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.userId)
         .select("-password")
         .exec();

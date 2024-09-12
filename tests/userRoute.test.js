@@ -3,24 +3,11 @@ const app = require("../app");
 const User = require("../models/user");
 const request = supertest(app);
 const { expect } = require("chai");
-const {
-    connectToDatabase,
-    disconnectDatabase,
-} = require("../middleware/mongoConfig");
+const { describe, after, it } = require("mocha");
+const { closeDatabase } = require("../utils/config");
 
 describe("user route tests", () => {
     let jerryId;
-
-    before(async () => {
-        await disconnectDatabase();
-        process.env.NODE_ENV = "test";
-        await connectToDatabase();
-    });
-
-    // disconnects and removes the memory server after test
-    after(async () => {
-        await disconnectDatabase();
-    });
 
     it("user fails to sign up", async () => {
         await request
@@ -80,6 +67,50 @@ describe("user route tests", () => {
             });
     });
 
+    it("user fails to sign up because of existing username", async () => {
+        await request
+            .post("/api/sign-up")
+            .set("Content-Type", "application/json")
+            .send({
+                firstname: "Tom",
+                lastname: "Hanks",
+                username: "jerrylane@test.com",
+                password: "gdkfljgdlfgjld",
+                confirmPassword: "gdkfljgdlfgjld",
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.body.success).to.be.a("boolean");
+                expect(res.body.success).to.equal(false);
+                expect(res.body.errors).to.be.an("array");
+                expect(res.body.errors.length).to.equal(1);
+                expect(res.body.errors[0].msg).to.equal("User already exists");
+            });
+    });
+
+    it("user fails to sign up because the passwords don't match", async () => {
+        await request
+            .post("/api/sign-up")
+            .set("Content-Type", "application/json")
+            .send({
+                firstname: "Tom",
+                lastname: "Hanks",
+                username: "tomhanks@test.com",
+                password: "gdkfljgdlfgjld",
+                confirmPassword: "gdkfljgdlfjl",
+            })
+            .expect(400)
+            .expect((res) => {
+                expect(res.body.success).to.be.a("boolean");
+                expect(res.body.success).to.equal(false);
+                expect(res.body.errors).to.be.an("array");
+                expect(res.body.errors.length).to.equal(1);
+                expect(res.body.errors[0].msg).to.equal(
+                    "The passwords don't match"
+                );
+            });
+    });
+
     it("user details are fetched from the database", async () => {
         await request
             .get(`/api/user/${jerryId}`)
@@ -92,4 +123,9 @@ describe("user route tests", () => {
                 expect(res.body.user.firstname).to.equal("Jerry");
             });
     });
+});
+
+// disconnects and removes the memory server after test
+after(async () => {
+    await closeDatabase();
 });
