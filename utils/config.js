@@ -37,4 +37,4 @@ const closeDatabase = async () => {
     }
 };
 
-module.exports = { PORT, connectToDatabase, closeDatabase };
+module.exports = { PORT, connectToDatabase, closeDatabase, mongoServer };
