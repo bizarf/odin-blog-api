@@ -5,13 +5,15 @@ const User = require("../models/user");
 const Post = require("../models/post");
 const { expect } = require("chai");
 const { describe, before, after, it } = require("mocha");
-const { closeDatabase } = require("../utils/config");
+const { closeDatabase, mongoServer } = require("../utils/config");
 
 describe("post route tests", () => {
     let jerryJWT;
     let postId;
 
     before(async () => {
+        await mongoServer;
+
         await request
             .post("/api/sign-up")
             .set("Content-Type", "application/json")
@@ -180,7 +182,20 @@ describe("post route tests", () => {
             });
 
         await request
-            .get("/api/posts")
+            .get("/api/posts/published")
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.success).to.be.a("boolean");
+                expect(res.body.success).to.equal(true);
+                expect(res.body.allPosts).to.be.an("array");
+                expect(res.body.allPosts.length).to.equal(1);
+            });
+    });
+
+    it("all unpublished posts are fetched", async () => {
+        await request
+            .get("/api/posts/unpublished")
+            .set("Authorization", "Bearer " + jerryJWT)
             .expect(200)
             .expect((res) => {
                 expect(res.body.success).to.be.a("boolean");
@@ -192,7 +207,7 @@ describe("post route tests", () => {
 
     it("every single of the author's posts are fetched", async () => {
         await request
-            .get("/api//author/posts")
+            .get("/api/author/posts")
             .set("Authorization", "Bearer " + jerryJWT)
             .expect(200)
             .expect((res) => {

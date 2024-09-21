@@ -30,7 +30,14 @@ router.delete(
 );
 
 // gather all published posts GET
-router.get("/posts", postController.posts_get);
+router.get("/posts/published", postController.published_posts_get);
+
+// gather all unpublished posts GET
+router.get(
+    "/posts/unpublished",
+    passport.authenticate("jwt", { session: false }),
+    postController.unpublished_posts_get
+);
 
 // gather all posts for author GET
 router.get(

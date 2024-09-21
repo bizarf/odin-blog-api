@@ -169,7 +169,7 @@ exports.post_single_get = asyncHandler(async (req, res) => {
 });
 
 // all blog posts GET method for only if the article is published
-exports.posts_get = asyncHandler(async (req, res) => {
+exports.published_posts_get = asyncHandler(async (req, res) => {
     // if no page is specified, then set the page to 1
     let page = req.query.page || 1;
     const postsPerPage = 10;
@@ -185,6 +185,31 @@ exports.posts_get = asyncHandler(async (req, res) => {
     }).exec();
     // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
     const allPosts = await Post.find({ published: "yes" })
+        .sort({ timestamp: -1 })
+        .skip((page - 1) * postsPerPage)
+        .limit(postsPerPage)
+        .exec();
+
+    res.json({ success: true, totalPublishedPostsCount, allPosts });
+});
+
+// all blog posts GET method for only if the article is published
+exports.unpublished_posts_get = asyncHandler(async (req, res) => {
+    // if no page is specified, then set the page to 1
+    let page = req.query.page || 1;
+    const postsPerPage = 10;
+
+    // if the page search query is entered as a 0 or a number below that, then set it to 1.
+    if (page <= 0) {
+        page = 1;
+    }
+
+    // count number of published posts for pagination buttons
+    const totalPublishedPostsCount = await Post.countDocuments({
+        published: "no",
+    }).exec();
+    // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
+    const allPosts = await Post.find({ published: "no" })
         .sort({ timestamp: -1 })
         .skip((page - 1) * postsPerPage)
         .limit(postsPerPage)
