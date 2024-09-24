@@ -5,7 +5,7 @@ const User = require("../models/user");
 const Comment = require("../models/comment");
 const Post = require("../models/post");
 const { expect } = require("chai");
-const { closeDatabase, mongoServer } = require("../utils/config");
+const { closeDatabase } = require("../utils/config");
 const { describe, before, after, it } = require("mocha");
 
 describe("comment route tests", () => {
@@ -14,8 +14,6 @@ describe("comment route tests", () => {
     let commentId;
 
     before(async () => {
-        mongoServer;
-
         await request
             .post("/api/sign-up")
             .set("Content-Type", "application/json")

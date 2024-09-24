@@ -184,12 +184,42 @@ exports.published_posts_get = asyncHandler(async (req, res) => {
         published: "yes",
     }).exec();
     // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
-    const allPosts = await Post.find({ published: "yes" })
-        .sort({ timestamp: -1 })
-        .skip((page - 1) * postsPerPage)
-        .limit(postsPerPage)
-        .exec();
-
+    const allPosts = await Post.aggregate([
+        {
+            $match: { published: "yes" },
+        },
+        // lookup joins a document. I want to count the number of comments, so I have to join the comments document with the Post one. I then create a new field to count the number of comments per post
+        {
+            $lookup: {
+                from: "comments",
+                localField: "_id",
+                foreignField: "postId",
+                as: "comments",
+            },
+        },
+        {
+            $addFields: {
+                commentCount: { $size: "$comments" },
+            },
+        },
+        // project is for either including or removing fields. I don't need the comments themselves for this query
+        {
+            $project: {
+                comments: 0,
+            },
+        },
+        {
+            $sort: {
+                timestamp: -1,
+            },
+        },
+        {
+            $skip: (page - 1) * postsPerPage,
+        },
+        {
+            $limit: postsPerPage,
+        },
+    ]);
     res.json({ success: true, totalPublishedPostsCount, allPosts });
 });
 
@@ -209,11 +239,42 @@ exports.unpublished_posts_get = asyncHandler(async (req, res) => {
         published: "no",
     }).exec();
     // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
-    const allPosts = await Post.find({ published: "no" })
-        .sort({ timestamp: -1 })
-        .skip((page - 1) * postsPerPage)
-        .limit(postsPerPage)
-        .exec();
+    const allPosts = await Post.aggregate([
+        {
+            $match: { published: "no" },
+        },
+        // lookup joins a document. I want to count the number of comments, so I have to join the comments document with the Post one. I then create a new field to count the number of comments per post
+        {
+            $lookup: {
+                from: "comments",
+                localField: "_id",
+                foreignField: "postId",
+                as: "comments",
+            },
+        },
+        {
+            $addFields: {
+                commentCount: { $size: "$comments" },
+            },
+        },
+        // project is for either including or removing fields. I don't need the comments themselves for this query
+        {
+            $project: {
+                comments: 0,
+            },
+        },
+        {
+            $sort: {
+                timestamp: -1,
+            },
+        },
+        {
+            $skip: (page - 1) * postsPerPage,
+        },
+        {
+            $limit: postsPerPage,
+        },
+    ]);
 
     res.json({ success: true, totalPublishedPostsCount, allPosts });
 });
@@ -240,11 +301,43 @@ exports.author_all_posts_get = asyncHandler(async (req, res) => {
     // count total posts for pagination buttons?
     const totalPostsCount = await Post.countDocuments().exec();
     // pagination feature: skip tells mongoose how many documents to skip, and limit will limit the number of documents that are returned
-    const allPosts = await Post.find()
-        .sort({ timestamp: -1 })
-        .skip((page - 1) * postsPerPage)
-        .limit(postsPerPage)
-        .exec();
+    const allPosts = await Post.aggregate([
+        {
+            // empty as I want all the documents
+            $match: {},
+        },
+        // lookup joins a document. I want to count the number of comments, so I have to join the comments document with the Post one. I then create a new field to count the number of comments per post
+        {
+            $lookup: {
+                from: "comments",
+                localField: "_id",
+                foreignField: "postId",
+                as: "comments",
+            },
+        },
+        {
+            $addFields: {
+                commentCount: { $size: "$comments" },
+            },
+        },
+        // project is for either including or removing fields. I don't need the comments themselves for this query
+        {
+            $project: {
+                comments: 0,
+            },
+        },
+        {
+            $sort: {
+                timestamp: -1,
+            },
+        },
+        {
+            $skip: (page - 1) * postsPerPage,
+        },
+        {
+            $limit: postsPerPage,
+        },
+    ]);
     res.json({ success: true, totalPostsCount, allPosts });
 });
 
