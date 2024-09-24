@@ -24,7 +24,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(compression());
 app.use(helmet());
-app.use(cors());
+app.use(
+    cors({
+        origin: ["http://localhost:5173/", "https://bizarf.github.io"],
+    })
+);
 
 // express rate limiter
 const { rateLimit } = require("express-rate-limit");
