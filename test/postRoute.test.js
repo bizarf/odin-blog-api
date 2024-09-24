@@ -5,15 +5,13 @@ const User = require("../models/user");
 const Post = require("../models/post");
 const { expect } = require("chai");
 const { describe, before, after, it } = require("mocha");
-const { closeDatabase, mongoServer } = require("../utils/config");
+const { closeDatabase } = require("../utils/config");
 
 describe("post route tests", () => {
     let jerryJWT;
     let postId;
 
     before(async () => {
-        await mongoServer;
-
         await request
             .post("/api/sign-up")
             .set("Content-Type", "application/json")
@@ -189,6 +187,7 @@ describe("post route tests", () => {
                 expect(res.body.success).to.equal(true);
                 expect(res.body.allPosts).to.be.an("array");
                 expect(res.body.allPosts.length).to.equal(1);
+                expect(res.body.allPosts[0].commentCount).to.equal(0);
             });
     });
 
@@ -202,6 +201,7 @@ describe("post route tests", () => {
                 expect(res.body.success).to.equal(true);
                 expect(res.body.allPosts).to.be.an("array");
                 expect(res.body.allPosts.length).to.equal(1);
+                expect(res.body.allPosts[0].commentCount).to.equal(0);
             });
     });
 
@@ -215,6 +215,7 @@ describe("post route tests", () => {
                 expect(res.body.success).to.equal(true);
                 expect(res.body.allPosts).to.be.an("array");
                 expect(res.body.allPosts.length).to.equal(2);
+                expect(res.body.allPosts[0].commentCount).to.equal(0);
             });
     });
 

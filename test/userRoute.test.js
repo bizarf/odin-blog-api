@@ -4,13 +4,9 @@ const User = require("../models/user");
 const request = supertest(app);
 const { expect } = require("chai");
 const { describe, after, it } = require("mocha");
-const { closeDatabase, mongoServer } = require("../utils/config");
+const { closeDatabase } = require("../utils/config");
 
 describe("user route tests", () => {
-    before(async () => {
-        await mongoServer;
-    });
-
     let jerryId;
 
     it("user fails to sign up", async () => {
