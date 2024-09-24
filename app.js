@@ -27,6 +27,8 @@ app.use(helmet());
 app.use(
     cors({
         origin: ["http://localhost:5173/", "https://bizarf.github.io"],
+        methods: "GET,PUT,POST,DELETE",
+        preflightContinue: true,
     })
 );
 
